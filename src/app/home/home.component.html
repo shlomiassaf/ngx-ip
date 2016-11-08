@@ -1,0 +1,58 @@
+<md-toolbar color="primary">ng2-ip</md-toolbar>
+<div style="margin: 8px">
+  <h1>An angular 2 IPv4 and IPv6 input component.</h1>
+  <p>ng2-ip is an IPv4/6 input component that implements block level IP inputs, each block has it's own input element for better UX control.<br>
+    This allows highlighting specific blocks with invalid syntax, disabling specific blocks (limit pools, etc...) and more.<br>
+    ng2-ip is NOT a mask component, masking is a different approach which uses one input element for the whole IP address.
+  </p>
+
+  <h3>Example</h3>
+  <p>An example of an IP component in the material theme with the 1st block disabled and the 2nd block invalid.</p>
+  <div style="width: 200px">
+    <ng2-ip [(ngModel)]="ip"
+            [disabledBlocks]="[1,0,0,0]"
+            [theme]="'ng2-ip-theme-material'"
+            [mode]="'ipv4'"></ng2-ip>
+  </div>
+
+
+  <h2>Lunch the interactive demo to see all options: <button md-button color="primary" (click)="openDemo()">Interactive Demo</button></h2>
+
+  <h3>Features</h3>
+  <ul>
+    <li>Supports IPv4 and IPv6</li>
+    <li>Control if user can type invalid characters</li>
+    <li>Separator behaves like TAB (e.g: in IPv4 pressing dot (.) is like pressing TAB)</li>
+    <li>Support paste (single value or whole address)</li>
+    <li>Support copy block or address</li>
+    <li>Disable specific blocks</li>
+    <li>Highlight invalid blocks (does not replace validation)</li>
+    <li>Themes</li>
+    <li>Implements OnPush</li>
+    <li>Supports AOT</li>
+  </ul>
+
+  <h2>Validation</h2>
+  <p>ng2-ip performs internal validation at the block level to allow invalid block highlighting.<br>
+    Block validation does not replace form validation, if you use angular forms you still need to validate the output, as you need with any other control.
+  </p>
+
+  <h2>Should I use ng2-ip or mask?</h2>
+  <p>Well, this really depends on you'r requirements, here are some key points:</p>
+  <h3>Copy / Paste</h3>
+  <p>ng2-ip offers better UX but since it has multiple input elements it has a different copy/paste (CMD/CTRL-C/V) behaviour.<br>
+    When pasting, ng2-ip will auto detect the content and handle full address automatically.<br>
+    When copying, ng2-ip has 3 copy modes to choose from, these modes fire only if the whole text in a block is selected otherwise copy behaviour is native<br>
+
+    Block mode: This is similar to the native copy mode, when fired it will copy the content of the block.<br>
+    Address mode: This will copy the whole address.<br>
+    Select mode: Once fired the user will be prompted to select Block or Address copy.<br>
+    This mode is not supported in browsers that does not support the document.execCommand('copy'); method (Safari 9), if set in such browser it will fallback to Block mode.<br>
+  </p>
+  <h3>Rendering</h3>
+  <p>
+    ng2-ip renders more input elements. This should have no effect on performance, unless you render 1000+ components and if you do you're doing something wrong :)<br>
+
+    If this is a deal breaker for you you should definitely use a mask component, here are some examples <a href="https://github.com/text-mask/text-mask/tree/master/angular2" target="_blank">Text Mask</a>, <a href="http://www.primefaces.org/primeng/#/inputmask" target="_blank">PrimeNG Input Mask</a>, etc...
+  </p>
+</div>

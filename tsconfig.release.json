@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "module": "ES6",
+    "target": "ES5",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "noEmitHelpers": false,
+    "noImplicitAny": false,
+    "removeComments": false,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "inlineSources": true,
+    "outDir": "release/esm",
+    "lib": [
+      "dom",
+      "es6"
+    ]
+  },
+  "awesomeTypescriptLoaderOptions": {
+    "forkChecker": true,
+    "useWebpackText": true
+  },
+  "include": [
+    "src/ng2-ip/index.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "node_modules/@types/core-js/index.d.ts",
+    "dist",
+    "gulp",
+    "typings"
+  ],
+  "angularCompilerOptions": {
+    "genDir": ".tmp",
+    "debug": false,
+    "skipMetadataEmit": false
+  }
+}

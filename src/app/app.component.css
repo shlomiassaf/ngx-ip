@@ -1,0 +1,16 @@
+html, body{
+  height: 100%;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  margin: 0;
+}
+
+body * {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+span.active {
+  background-color: gray;
+}
+
+@import '~@angular/material/core/theming/prebuilt/deeppurple-amber.css';

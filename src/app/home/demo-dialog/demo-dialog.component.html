@@ -1,0 +1,64 @@
+<md-toolbar color="accent">Interactive Demo</md-toolbar>
+
+<div>
+  <label for="inputValidation">Input Validation</label>
+  <md-button-toggle-group name="inputValidation" [(ngModel)]="inputValidation" id="inputValidation">
+    <md-button-toggle value="none">None</md-button-toggle>
+    <md-button-toggle value="char">Char</md-button-toggle>
+    <md-button-toggle value="block">Block</md-button-toggle>
+  </md-button-toggle-group>
+</div>
+
+<md-checkbox [(ngModel)]="highlightInvalidBlocks">
+  Highlight Invalid Blocks
+</md-checkbox>
+
+<div>
+  <label for="disabledBlocks">Disabled blocks</label>
+  <md-button-toggle-group multiple id="disabledBlocks">
+    <md-button-toggle (change)="onDisableBlockChange($event)" value="0">Block 1</md-button-toggle>
+    <md-button-toggle (change)="onDisableBlockChange($event)" value="1">Block 2</md-button-toggle>
+    <md-button-toggle (change)="onDisableBlockChange($event)" value="2">Block 3</md-button-toggle>
+    <md-button-toggle (change)="onDisableBlockChange($event)" value="3">Block 4</md-button-toggle>
+    <md-button-toggle *ngIf="mode === 'ipv6'" (change)="onDisableBlockChange($event)" value="4">Block 5</md-button-toggle>
+    <md-button-toggle *ngIf="mode === 'ipv6'" (change)="onDisableBlockChange($event)" value="5">Block 6</md-button-toggle>
+    <md-button-toggle *ngIf="mode === 'ipv6'" (change)="onDisableBlockChange($event)" value="6">Block 7</md-button-toggle>
+    <md-button-toggle *ngIf="mode === 'ipv6'" (change)="onDisableBlockChange($event)" value="7">Block 8</md-button-toggle>
+  </md-button-toggle-group>
+</div>
+
+<div>
+  <label for="Theme">Theme</label>
+  <md-button-toggle-group name="theme" [(ngModel)]="theme" id="Theme">
+    <md-button-toggle value="default">Default</md-button-toggle>
+    <md-button-toggle value="boxed">Boxed</md-button-toggle>
+    <md-button-toggle value="material">Material</md-button-toggle>
+  </md-button-toggle-group>
+</div>
+
+<div>
+  <label for="mode">Mode</label>
+  <md-radio-group name="mode" id="mode" [(ngModel)]="mode">
+    <md-radio-button value="ipv4">IPV4</md-radio-button>
+    <md-radio-button value="ipv6">IPV6</md-radio-button>
+  </md-radio-group>
+</div>
+
+<div>
+  <label for="copyMode">Copy Mode</label>
+  <md-button-toggle-group name="copyMode" [(ngModel)]="copyMode" id="copyMode">
+    <md-button-toggle value="block">Block</md-button-toggle>
+    <md-button-toggle value="address">Address</md-button-toggle>
+    <md-button-toggle value="select">Selection</md-button-toggle>
+  </md-button-toggle-group>
+</div>
+
+
+<ng2-ip [(ngModel)]="ip"
+        [inputValidation]="inputValidation"
+        [disabledBlocks]="disabledBlocks"
+        [highlightInvalidBlocks]="highlightInvalidBlocks"
+        [theme]="'ng2-ip-theme-' + theme"
+        [mode]="mode"
+        [copyMode]="copyMode"></ng2-ip>
+<pre>{{ip}}</pre>
