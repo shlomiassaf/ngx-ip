@@ -1,6 +1,6 @@
 {
   "name": "ng2-ip",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "An Angular 2 IP (IPv4 and IPv6) component",
   "keywords": [
     "angular2",
@@ -104,6 +104,7 @@
     "gh-pages": "^0.11.0",
     "gulp": "^3.9.1",
     "gulp-conventional-changelog": "^1.1.0",
+    "gulp-git": "^1.12.0",
     "gulp-shell": "^0.5.2",
     "gulp-sourcemaps": "^2.2.0",
     "html-webpack-plugin": "^2.21.0",

@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const gulp = require('gulp');
 const conventionalChangelog = require('gulp-conventional-changelog');
+const git = require('gulp-git');
 const config = require('./config');
 
 
@@ -40,7 +41,7 @@ gulp.task('create-tag', (cb) => {
   }
 
   const version = getPackageJsonVersion();
-  return $.git.tag(version, `chore(version): ${version}`, (error) => {
+  return git.tag(version, `chore(version): ${version}`, (error) => {
     if (error) {
       return cb(error);
     }
