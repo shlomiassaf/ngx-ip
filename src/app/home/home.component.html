@@ -43,12 +43,20 @@
   <p>ng2-ip offers better UX but since it has multiple input elements it has a different copy/paste (CMD/CTRL-C/V) behaviour.<br>
     When pasting, ng2-ip will auto detect the content and handle full address automatically.<br>
     When copying, ng2-ip has 3 copy modes to choose from, these modes fire only if the whole text in a block is selected otherwise copy behaviour is native<br>
-
-    Block mode: This is similar to the native copy mode, when fired it will copy the content of the block.<br>
-    Address mode: This will copy the whole address.<br>
-    Select mode: Once fired the user will be prompted to select Block or Address copy.<br>
-    This mode is not supported in browsers that does not support the document.execCommand('copy'); method (Safari 9), if set in such browser it will fallback to Block mode.<br>
   </p>
+    <ul>
+      <li>
+        <strong>Block mode:</strong> This is similar to the native copy mode, when fired it will copy the content of the block.
+      </li>
+      <li>
+        <strong>Address mode:</strong> This will copy the whole address.
+      </li>
+      <li>
+        <strong>Select mode:</strong> Once fired the user will be prompted to select Block or Address copy.<br>
+        This mode is not supported in browsers that does not support the document.execCommand('copy'); method (Safari 9), if set in such browser it will fallback to Block mode.<br>
+      </li>
+    </ul>
+
   <h3>Rendering</h3>
   <p>
     ng2-ip renders more input elements. This should have no effect on performance, unless you render 1000+ components and if you do you're doing something wrong :)<br>

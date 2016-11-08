@@ -7,6 +7,8 @@ This allows highlighting specific blocks with invalid syntax, disabling specific
     
 `ng2-ip` is **NOT** a mask component, masking is a different approach which uses one input element for the whole IP address.
 
+## DEMO:
+https://shlomiassaf.github.io/ng2-ip
 
 ## Features
 * Supports IPv4 and IPv6
