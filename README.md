@@ -7,6 +7,9 @@ This allows highlighting specific blocks with invalid syntax, disabling specific
     
 `ng2-ip` is **NOT** a mask component, masking is a different approach which uses one input element for the whole IP address.
 
+## Install: 
+`npm install ng2-ip --save` or `yarn add ng2-ip --save`
+
 ## DEMO:
 https://shlomiassaf.github.io/ng2-ip
 
