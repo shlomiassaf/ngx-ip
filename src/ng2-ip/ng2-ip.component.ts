@@ -42,6 +42,7 @@ function cancelEvent($event: Event): void {
 //     <template ngFor let-idx [ngForOf]="blocksRef"; let-isLast="last">
 //       <div class="ng2-ip-table-cell" [class.ng2-ip-disabled]="disabledBlocks[idx]" [ngClass]="invalidBlocks[idx]">
 //         <input #input
+//                type="text"
 //                [value]="blocks[idx] || ''"
 //                (change)="onChange($event.target.value, idx)"
 //                (blur)="onBlur(idx)"
@@ -55,6 +56,7 @@ function cancelEvent($event: Event): void {
 //       <span class="ng2-ip-table-cell ng2-ip-sep" *ngIf="!isLast">{{vX.SEP}}</span>
 //     </template>
 //   </div>
+//
 //   <div class="ng2-ip-copy-overlay" *ngIf="showCopySelection">
 //     <div class="ng2-ip-table" [@copyAnim]="">
 //       <div class="ng2-ip-copy-title">Copy?</div>
@@ -385,8 +387,8 @@ export class Ng2IpComponent implements ControlValueAccessor {
 
   @Output() change = new EventEmitter<string>();
 
+  @ViewChildren('input') public inputs: QueryList<ElementRef>;
 
-  @ViewChildren('input') private inputs: QueryList<ElementRef>;
   private _mode: IPV_MODE_TYPE = 'ipv4';
   private _value: string = null;
   private _onTouchedCallback: () => void = noop;
