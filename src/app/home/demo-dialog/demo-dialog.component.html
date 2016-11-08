@@ -1,5 +1,5 @@
 <md-toolbar color="accent">Interactive Demo</md-toolbar>
-
+<h2>Note: Due to the use of @angular/material beta this dialog might appear blurry on some browsers.</h2>
 <div>
   <label for="inputValidation">Input Validation</label>
   <md-button-toggle-group name="inputValidation" [(ngModel)]="inputValidation" id="inputValidation">
@@ -8,11 +8,12 @@
     <md-button-toggle value="block">Block</md-button-toggle>
   </md-button-toggle-group>
 </div>
-
+<br>
 <md-checkbox [(ngModel)]="highlightInvalidBlocks">
   Highlight Invalid Blocks
 </md-checkbox>
-
+<br>
+<br>
 <div>
   <label for="disabledBlocks">Disabled blocks</label>
   <md-button-toggle-group multiple id="disabledBlocks">
@@ -26,7 +27,7 @@
     <md-button-toggle *ngIf="mode === 'ipv6'" (change)="onDisableBlockChange($event)" value="7">Block 8</md-button-toggle>
   </md-button-toggle-group>
 </div>
-
+<br>
 <div>
   <label for="Theme">Theme</label>
   <md-button-toggle-group name="theme" [(ngModel)]="theme" id="Theme">
@@ -35,7 +36,7 @@
     <md-button-toggle value="material">Material</md-button-toggle>
   </md-button-toggle-group>
 </div>
-
+<br>
 <div>
   <label for="mode">Mode</label>
   <md-radio-group name="mode" id="mode" [(ngModel)]="mode">
@@ -43,7 +44,7 @@
     <md-radio-button value="ipv6">IPV6</md-radio-button>
   </md-radio-group>
 </div>
-
+<br>
 <div>
   <label for="copyMode">Copy Mode</label>
   <md-button-toggle-group name="copyMode" [(ngModel)]="copyMode" id="copyMode">
@@ -52,8 +53,7 @@
     <md-button-toggle value="select">Selection</md-button-toggle>
   </md-button-toggle-group>
 </div>
-
-
+<br>
 <ng2-ip [(ngModel)]="ip"
         [inputValidation]="inputValidation"
         [disabledBlocks]="disabledBlocks"
