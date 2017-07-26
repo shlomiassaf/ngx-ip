@@ -1,6 +1,6 @@
 <div class="ng2-ip-container" [ngClass]="containerClass">
   <div class="ng2-ip-table" [@inputAnim]="inputAnim">
-    <template ngFor let-idx [ngForOf]="blocksRef"; let-isLast="last">
+    <ng-template ngFor let-idx [ngForOf]="blocksRef"; let-isLast="last">
       <div class="ng2-ip-table-cell" [class.ng2-ip-disabled]="disabledBlocks[idx]" [ngClass]="invalidBlocks[idx]">
         <input #input
                type="text"
@@ -15,7 +15,7 @@
                (keyup)="onKeyUp($event, idx)"/>
       </div>
       <span class="ng2-ip-table-cell ng2-ip-sep" *ngIf="!isLast">{{vX.SEP}}</span>
-    </template>
+    </ng-template>
   </div>
 
   <div class="ng2-ip-copy-overlay" *ngIf="showCopySelection">
