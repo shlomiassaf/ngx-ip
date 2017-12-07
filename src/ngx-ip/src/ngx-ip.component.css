@@ -1,0 +1,129 @@
+.ngx-ip-container {
+  position: relative;
+  margin: 5px 0;
+  padding: 2px 0;
+  overflow: hidden;
+}
+
+.ngx-ip-copy-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.ngx-ip-copy-overlay .ngx-ip-table {
+  height: 100%;
+}
+
+.ngx-ip-copy-overlay .ngx-ip-table > * {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.ngx-ip-copy-title {
+  text-align: center;
+  vertical-align: middle;
+  font-size: 0.75em;
+}
+
+.ngx-ip-copy-overlay .ngx-ip-table > a {
+  border: 1px solid #9e9e9e;
+  cursor: pointer;
+}
+
+
+
+.ngx-ip-table {
+  display: inline-table;
+  flex-flow: column;
+  vertical-align: bottom;
+  width: 100%;
+}
+
+.ngx-ip-table-cell {
+  position: relative;
+  display: table-cell;
+  text-align: center;
+}
+
+.ngx-ip-table input {
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Default Theme */
+.ngx-ip-theme-default.ngx-ip-container {
+  border: 1px solid #26a69a;
+}
+
+
+.ngx-ip-theme-default .ngx-ip-table-cell {
+  transition: all 0.3s;
+}
+
+.ngx-ip-theme-default .ngx-ip-table input {
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.ngx-ip-theme-default .ngx-ip-table-cell.ngx-ip-error {
+  box-shadow: 0 2px 15px 0 #F44336;
+}
+
+/* Boxed Theme */
+.ngx-ip-theme-boxed input {
+  transition: all 0.3s;
+}
+.ngx-ip-theme-boxed .ngx-ip-error:not(.ngx-ip-disabled) input {
+  border-color: #F44336;
+}
+
+
+/* MATERIAL THEME */
+.ngx-ip-theme-material.ngx-ip-container {
+  background-color: transparent;
+  border: none;
+  box-sizing: content-box;
+  transition: all 0.3s;
+  font-size: 1rem;
+}
+
+.ngx-ip-theme-material .ngx-ip-table-cell {
+  border-bottom: 1px solid #9e9e9e;
+  transition: all 0.3s;
+}
+
+.ngx-ip-theme-material.ngx-ip-focused .ngx-ip-table-cell:not(.ngx-ip-disabled) {
+  border-bottom: 1px solid #26a69a;
+  box-shadow: 0 1px 0 0 #26a69a;
+}
+
+
+.ngx-ip-theme-material .ngx-ip-table-cell.ngx-ip-error:not(.ngx-ip-disabled) {
+  box-shadow: 0 1px 0 0 #F44336;
+}
+
+.ngx-ip-theme-material .ngx-ip-table-cell.ngx-ip-disabled {
+  border-bottom: 1px dotted rgba(0,0,0,0.26);
+}
+
+.ngx-ip-theme-material input {
+  background: transparent;
+  border: none;
+  outline: none;
+
+  height: 3rem;
+  font-size: 1rem;
+  padding: 0;
+  box-shadow: none;
+}
+
+.ngx-ip-theme-material input[disabled] {
+  color: rgba(0,0,0,0.26);
+}

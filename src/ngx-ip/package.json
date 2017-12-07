@@ -1,0 +1,15 @@
+{
+  "name": "ngx-ip",
+  "version": "1.0.0",
+  "description": "An Angular network address component (IPv4, IPv6 and MAC)",
+  "keywords": [
+    "angular",
+    "component",
+    "network",
+    "address",
+    "ip",
+    "ipv4",
+    "ipv6",
+    "mac"
+  ]
+}

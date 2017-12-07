@@ -1,0 +1,73 @@
+<mat-toolbar color="primary">
+  <span>ngx-ip</span>
+  <span style="flex: 1 1 auto;"></span>
+
+  <a style="color: white" href="https://github.com/shlomiassaf/ngx-ip" target="_blank">GitHub</a>
+</mat-toolbar>
+<div style="margin: 8px">
+  <h1>An angular 2 IPv4 and IPv6 input component.</h1>
+  <p>ngx-ip is an IPv4/6 input component that implements block level IP inputs, each block has it's own input element for better UX control.<br>
+    This allows highlighting specific blocks with invalid syntax, disabling specific blocks (limit pools, etc...) and more.<br>
+    ngx-ip is NOT a mask component, masking is a different approach which uses one input element for the whole IP address.
+  </p>
+
+  Install: <strong>npm install ngx-ip --save</strong> or <strong>yarn add ngx-ip --save</strong>
+
+  <h3>Example</h3>
+  <p>An example of an IP component in the material theme with the 1st block disabled and the 2nd block invalid.</p>
+  <div style="width: 200px">
+    <ngx-ip [(ngModel)]="ip"
+            [disabledBlocks]="[1,0,0,0]"
+            [theme]="'ngx-ip-theme-material'"
+            [mode]="'ipv4'"></ngx-ip>
+  </div>
+
+
+  <h2>Lunch the interactive demo to see all options: <button mat-button color="primary" (click)="openDemo()">Interactive Demo</button></h2>
+
+  <h3>Features</h3>
+  <ul>
+    <li>Supports IPv4 and IPv6</li>
+    <li>Control if user can type invalid characters</li>
+    <li>Separator behaves like TAB (e.g: in IPv4 pressing dot (.) is like pressing TAB)</li>
+    <li>Support paste (single value or whole address)</li>
+    <li>Support copy block or address</li>
+    <li>Disable specific blocks</li>
+    <li>Highlight invalid blocks (does not replace validation)</li>
+    <li>Themes</li>
+    <li>Implements OnPush</li>
+    <li>Supports AOT</li>
+  </ul>
+
+  <h2>Validation</h2>
+  <p>ngx-ip performs internal validation at the block level to allow invalid block highlighting.<br>
+    Block validation does not replace form validation, if you use angular forms you still need to validate the output, as you need with any other control.
+  </p>
+
+  <h2>Should I use ngx-ip or mask?</h2>
+  <p>Well, this really depends on you'r requirements, here are some key points:</p>
+  <h3>Copy / Paste</h3>
+  <p>ngx-ip offers better UX but since it has multiple input elements it has a different copy/paste (CMD/CTRL-C/V) behaviour.<br>
+    When pasting, ngx-ip will auto detect the content and handle full address automatically.<br>
+    When copying, ngx-ip has 3 copy modes to choose from, these modes fire only if the whole text in a block is selected otherwise copy behaviour is native<br>
+  </p>
+    <ul>
+      <li>
+        <strong>Block mode:</strong> This is similar to the native copy mode, when fired it will copy the content of the block.
+      </li>
+      <li>
+        <strong>Address mode:</strong> This will copy the whole address.
+      </li>
+      <li>
+        <strong>Select mode:</strong> Once fired the user will be prompted to select Block or Address copy.<br>
+        This mode is not supported in browsers that does not support the document.execCommand('copy'); method (Safari 9), if set in such browser it will fallback to Block mode.<br>
+      </li>
+    </ul>
+
+  <h3>Rendering</h3>
+  <p>
+    ngx-ip renders more input elements. This should have no effect on performance, unless you render 1000+ components and if you do you're doing something wrong :)<br>
+
+    If this is a deal breaker for you you should definitely use a mask component, here are some examples <a href="https://github.com/text-mask/text-mask/tree/master/angular2" target="_blank">Text Mask</a>, <a href="http://www.primefaces.org/primeng/#/inputmask" target="_blank">PrimeNG Input Mask</a>, etc...
+  </p>
+</div>

@@ -1,0 +1,28 @@
+<div class="ngx-ip-container" [ngClass]="containerClass">
+  <div class="ngx-ip-table" [@inputAnim]="inputAnim">
+    <ng-template ngFor let-idx [ngForOf]="blocksRef"; let-isLast="last">
+      <div class="ngx-ip-table-cell" [class.ngx-ip-disabled]="disabledBlocks[idx]" [ngClass]="{ 'ngx-ip-error': highlightInvalidBlocks && invalidBlocks[idx] }">
+        <input #input
+               type="text"
+               [value]="blocks[idx] || ''"
+               (change)="onChange($event.target.value, idx)"
+               (blur)="onBlur(idx)"
+               (focus)="onFocus(idx)"
+               [disabled]="disabledBlocks[idx]"
+               (paste)="onPaste($event, idx)"
+               (copy)="onCopy($event, idx)"
+               (keypress)="onKeyPress($event, idx)"
+               (keyup)="onKeyUp($event, idx)"/>
+      </div>
+      <span class="ngx-ip-table-cell ngx-ip-sep" *ngIf="!isLast">{{addr.SEP}}</span>
+    </ng-template>
+  </div>
+
+  <div class="ngx-ip-copy-overlay" *ngIf="showCopySelection">
+    <div class="ngx-ip-table" [@copyAnim]="">
+      <div class="ngx-ip-copy-title">Copy?</div>
+      <a (click)="onCopyDecision('block')">Block</a>
+      <a (click)="onCopyDecision('address')">Address</a>
+    </div>
+  </div>
+</div>
