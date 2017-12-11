@@ -16,7 +16,7 @@ fi
 set -ex
 
 
-npm publish --access public ./release
+npm publish --access public ./dist_package/ngx-ip
 
 
 # Always log out of npm when publish is complete.

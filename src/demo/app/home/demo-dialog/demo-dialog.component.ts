@@ -12,7 +12,9 @@ export class DemoDialogComponent {
   highlightInvalidBlocks = true;
   theme: string = 'default';
   mode: string = 'ipv4';
-
+  disabled: boolean;
+  readonly: boolean;
+  separator: string;
   copyMode: COPY_MODE_TYPE = 'select';
 
   ip: string;
@@ -24,6 +26,11 @@ export class DemoDialogComponent {
   onDisableBlockChange($event: MatButtonToggleChange) {
     // we must change the whole array for this to kick CD.
     this.disabledBlocks = this.disabledBlocks.slice();
-    this.disabledBlocks[parseInt($event.value)] = $event.source.checked;
+    const value = parseInt($event.value, 10);
+    if (value === -1) {
+      this.disabled = $event.source.checked;
+    } else {
+      this.disabledBlocks[value] = $event.source.checked;
+    }
   }
 }

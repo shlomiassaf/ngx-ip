@@ -9,7 +9,9 @@ import {
   QueryList,
   ElementRef,
   ChangeDetectionStrategy,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  OnChanges,
+  SimpleChanges
 } from '@angular/core';
 import {trigger, transition, style, animate, state} from '@angular/animations';
 import {
@@ -21,7 +23,7 @@ import {
   ValidationErrors
 } from '@angular/forms';
 
-import {noop, v4, v6, mac, inputSelection} from './utils';
+import { AddressModeLogic, noop, v4, v6, mac, inputSelection, coerceBooleanProperty } from './utils';
 
 export type ADDRESS_MODE_TYPE = 'ipv4' | 'ipv6' | 'mac';
 export type COPY_MODE_TYPE = 'block' | 'address' | 'select';
@@ -92,12 +94,12 @@ function cancelEvent($event: Event): void {
     ])
   ]
 })
-export class NgxIpComponent implements ControlValueAccessor, Validator {
-  public blocks: string[] = v4.blocks();
-  public blocksRef: number[] = this.blocks.map((v, i) => i);
-  public invalidBlocks: boolean[] = [];
+export class NgxIpComponent implements OnChanges, ControlValueAccessor, Validator {
+  public blocks: string[];
+  public blocksRef: number[];
+  public invalidBlocks: boolean[];
   public containerClass: string[] = [];
-  public addr: typeof v6 | typeof v4 | typeof mac = v4;
+  public addr: AddressModeLogic;
   public showCopySelection: boolean;
   public inputAnim: string;
 
@@ -125,19 +127,41 @@ export class NgxIpComponent implements ControlValueAccessor, Validator {
    */
   @Input()
   set mode(mode: ADDRESS_MODE_TYPE) {
-    if (this._mode === mode) return;
+    if (this._mode === mode) {
+      return;
+    }
 
+    /* We set the separator of the new address logic only if user did not set it explicitly.
+       but we also need to support changing of modes so we check old address logic separator to\
+       match current, if match then we know user did not set separator to something else and so
+       we update new logic separator */
+    const setSeparator = !this.addr || this.separator === this.addr.SEP;
     this.addr = isV6(mode) ? v6 : isMac(mode) ? mac : v4;
+    if (setSeparator) {
+      this.separator = this.addr.SEP;
+    }
 
     this._mode = mode;
     this.blocks = this.addr.blocks();
     this.blocksRef = this.blocks.map((v, i) => i);
-    this.inputValidation = this.addr.blocks().map( b => false );
+    this.invalidBlocks = this.addr.blocks().map( b => false );
   }
 
   get value(): string {
     return this._value;
   };
+
+  /**
+   * The separator to use character to use as an octet delimiter.
+   * The value has an effect on both UI and UX.
+   * On the UI side, this character is what the user see's as the delimiter.
+   * On the UX side, when this character value is pressed the focus jumps to the next octet
+   * similar to what happens when the user press TAB
+   *
+   * Another behaviour that changes is the paste operation, paste will split to octets by the specified
+   * separator, e.g.: The IP address 10.0.0.1 when pasted and the separator is "," will not split correctly.
+   */
+  @Input() separator: string;
 
   @Input()
   set value(v: string) {
@@ -189,7 +213,9 @@ export class NgxIpComponent implements ControlValueAccessor, Validator {
    */
   @Input()
   set theme(value: string) {
-    if (this._theme === value) return;
+    if (this._theme === value) {
+      return;
+    }
 
     let idx = this.containerClass.indexOf(this._theme);
     if (idx > -1) this.containerClass.splice(idx, 1);
@@ -252,11 +278,20 @@ export class NgxIpComponent implements ControlValueAccessor, Validator {
    */
   @Input() disabledBlocks: boolean[] = [];
 
+  @Input() get disabled() { return this._disabled; }
+  set disabled(value: any) { this._disabled = coerceBooleanProperty(value); }
+
+  @Input()
+  get readonly() { return this._readonly; }
+  set readonly(value: any) { this._readonly = coerceBooleanProperty(value); }
+
   @Output() change = new EventEmitter<string>();
 
   @ViewChildren('input') public inputs: QueryList<ElementRef>;
 
-  private _mode: ADDRESS_MODE_TYPE = 'ipv4';
+  private _readonly: boolean = false;
+  private _disabled: boolean = false;
+  private _mode: ADDRESS_MODE_TYPE;
   private _value: string = null;
   private _onTouchedCallback: () => void = noop;
   private _onChangeCallback: (_: any) => void = noop;
@@ -265,7 +300,23 @@ export class NgxIpComponent implements ControlValueAccessor, Validator {
   private autoCopy: string;
   private errorCount: number = 0;
 
-  constructor(private _cdr: ChangeDetectorRef) { }
+  constructor(private _cdr: ChangeDetectorRef) {
+    this.mode = 'ipv4';
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if ('separator' in changes) {
+      if (!changes.separator.currentValue) {
+        this.separator = this.addr.SEP;
+      } else if (this.separator.length > 1) {
+        this.separator = this.separator[0];
+      }
+    }
+  }
+
+  isBlockDisabled(idx: number): boolean {
+    return this.disabled || this.disabledBlocks[idx];
+  }
 
   validate(c: AbstractControl): ValidationErrors | null {
     if (this.errorCount > 0) {
@@ -292,7 +343,7 @@ export class NgxIpComponent implements ControlValueAccessor, Validator {
       let clipData: any = $event.clipboardData.getData('text');
 
       if (typeof clipData === 'string') {
-        let arr = clipData.split(this.addr.SEP);
+        let arr = clipData.split(this.separator);
         if (arr.length === this.addr.BLOCK_COUNT) {
           this.value = this.fromBlocks(arr);
         } else {
@@ -392,16 +443,19 @@ export class NgxIpComponent implements ControlValueAccessor, Validator {
 
   onKeyPress($event: KeyboardEvent, idx: number): void {
     // safari/ff will cancel copy/paste , chrome wont... so don't mess with it.
-    if ($event.metaKey || $event.ctrlKey || $event.altKey) return;
+    if ($event.metaKey || $event.ctrlKey || $event.altKey) {
+      return;
+    }
 
     // browser support (e.g: safari)
     let key = typeof $event.key === 'string' ? $event.key : String.fromCharCode($event.charCode);
 
-    if (key === this.addr.SEP) {
+    if (key === this.separator) {
       cancelEvent($event);
       this.focusNext(idx);
     }
 
+    const isLast = inputSelection.caretIsLast($event.target as any);
     const value = inputSelection.insert($event.target as any, key);
 
     if (this.inputValidation === 'char' && !this.addr.RE_CHAR.test(key)) {
@@ -411,6 +465,9 @@ export class NgxIpComponent implements ControlValueAccessor, Validator {
     }
 
     this.markBlockValidity(value, idx);
+    if (!this.invalidBlocks[idx] && isLast && this.addr.isMaxLen(value)) {
+      this.focusNext(idx, false);
+    }
   }
 
   onKeyUp($event: KeyboardEvent, idx: number): void {
@@ -436,7 +493,9 @@ export class NgxIpComponent implements ControlValueAccessor, Validator {
   }
 
   onFocus(idx: number): void {
-    this.focused = true;
+    if (!this.readonly) {
+      this.focused = true;
+    }
   }
 
   private focusNext(idx: number, selectRange: boolean = true): void {
@@ -466,10 +525,10 @@ export class NgxIpComponent implements ControlValueAccessor, Validator {
   }
 
   private toBlocks(value: string): string[] {
-    return this.addr.split(value, false);
+    return this.addr.split(value, this.separator);
   }
 
   private fromBlocks(blocks: string[]): string {
-    return this.addr.fromBlocks(blocks);
+    return this.addr.fromBlocks(blocks, this.separator);
   }
 }

@@ -1,4 +1,5 @@
 <mat-toolbar color="accent">Interactive Demo</mat-toolbar>
+<br>
 <div>
   <label for="inputValidation">Input Validation</label>
   <mat-button-toggle-group name="inputValidation" [(ngModel)]="inputValidation" id="inputValidation">
@@ -8,9 +9,21 @@
   </mat-button-toggle-group>
 </div>
 <br>
-<mat-checkbox [(ngModel)]="highlightInvalidBlocks">
+<mat-slide-toggle #customSeparator (change)="!customSeparator.checked && separator = null">
+  Custom Separator
+  <input type="text" maxlength="1" minlength="1"
+         [(ngModel)]="separator"
+         [required]="customSeparator.checked"
+         [disabled]="!customSeparator.checked" />
+</mat-slide-toggle>
+<br>
+<mat-slide-toggle [(ngModel)]="highlightInvalidBlocks">
   Highlight Invalid Blocks
-</mat-checkbox>
+</mat-slide-toggle>
+<br>
+<mat-slide-toggle [(ngModel)]="readonly">
+  Read only?
+</mat-slide-toggle>
 <br>
 <br>
 <div>
@@ -24,6 +37,7 @@
     <mat-button-toggle *ngIf="mode === 'ipv6'" (change)="onDisableBlockChange($event)" value="5">Block 6</mat-button-toggle>
     <mat-button-toggle *ngIf="mode === 'ipv6'" (change)="onDisableBlockChange($event)" value="6">Block 7</mat-button-toggle>
     <mat-button-toggle *ngIf="mode === 'ipv6'" (change)="onDisableBlockChange($event)" value="7">Block 8</mat-button-toggle>
+    <mat-button-toggle (change)="onDisableBlockChange($event)" value="-1">Component</mat-button-toggle>
   </mat-button-toggle-group>
 </div>
 <br>
@@ -50,13 +64,16 @@
   <mat-button-toggle-group name="copyMode" [(ngModel)]="copyMode" id="copyMode">
     <mat-button-toggle value="block">Block</mat-button-toggle>
     <mat-button-toggle value="address">Address</mat-button-toggle>
-    <mat-button-toggle value="select">Selection</mat-button-toggle>
+    <mat-button-toggle value="select">User defined</mat-button-toggle>
   </mat-button-toggle-group>
 </div>
 <br>
 <ngx-ip [(ngModel)]="ip"
         [inputValidation]="inputValidation"
         [disabledBlocks]="disabledBlocks"
+        [separator]="separator"
+        [disabled]="disabled"
+        [readonly]="readonly"
         [highlightInvalidBlocks]="highlightInvalidBlocks"
         [theme]="'ngx-ip-theme-' + theme"
         [mode]="mode"

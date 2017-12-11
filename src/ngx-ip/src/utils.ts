@@ -1,49 +1,72 @@
 export const noop = () => {};
 
-export const v4 = {
-  BLOCK_MAX_LEN: 3,
+export interface AddressModeLogic {
+  BLOCK_COUNT: number;
+  SEP: string;
+  RE_CHAR: RegExp;
+  RE_BLOCK: RegExp;
+  blocks: () => string[];
+  fromBlocks: (blocks: string[], sep?: string) => string;
+  split: (value: string, sep?: string, throwError?: boolean) => string[];
+  isValid: (blocks: string[]) => boolean;
+  isMaxLen: (value: string) => boolean;
+}
+
+export const v4: AddressModeLogic = {
   BLOCK_COUNT: 4,
   SEP: '.',
   RE_CHAR: /^[0-9]$/,
   RE_BLOCK: /^([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])$/,
   blocks(): string[] { return ['', '' , '', '']; },
-  fromBlocks(blocks: string[]): string {
-    return blocks.join(v4.SEP);
+  fromBlocks(blocks: string[], sep: string = v4.SEP): string {
+    return blocks.join(sep);
   },
-  split(value: string, throwError: boolean = false): string[] {
-    if (!value) return v4.blocks();
-    const result = value.split(v4.SEP);
+  split(value: string, sep: string = v4.SEP, throwError: boolean = false): string[] {
+    if (!value) {
+      return v4.blocks();
+    }
+    const result = value.split(sep);
     if (throwError && result.length !== v4.BLOCK_COUNT ) {
       throw new Error('Invalid IPV4');
     }
     return result;
   },
   isValid(blocks: string[]): boolean {
-    return blocks.every(value => parseInt(value) >= 0 && parseInt(value) <=255);
+    return blocks.every(value => parseInt(value, 10) >= 0 && parseInt(value, 10) <= 255);
+  },
+  isMaxLen(value: string): boolean {
+    if (value.length === 3) {
+      return true;
+    } else if (value.length === 2 && parseInt(value, 10) > 25) {
+      return true;
+    } else {
+      return false;
+    }
   }
 };
 
-export const v6 = {
-  BLOCK_MAX_LEN: 4,
+export const v6: AddressModeLogic = {
   BLOCK_COUNT: 8,
   SEP: ':',
   RE_CHAR: /^[0-9A-Fa-f]$/,
   RE_BLOCK: /^[0-9A-Fa-f]{0,4}$/,
   blocks(): string[] { return v4.blocks().concat(v4.blocks()); },
-  fromBlocks(blocks: string[]): string {
-    return blocks.map(value => value ? value : '0000').join(v6.SEP);
+  fromBlocks(blocks: string[], sep: string  = v6.SEP): string {
+    return blocks.map(value => value ? value : '0000').join(sep);
   },
-  split(value: string, throwError: boolean = true): string[] {
-    if (!value) return v6.blocks();
-    const consecutiveSplit = value.split(v6.SEP + v6.SEP);
-    const result: string[] = consecutiveSplit[0].split(v6.SEP);
+  split(value: string, sep: string = v6.SEP, throwError: boolean = false): string[] {
+    if (!value) {
+      return v6.blocks();
+    }
+    const consecutiveSplit = value.split(sep + sep);
+    const result: string[] = consecutiveSplit[0].split(sep);
 
     if (consecutiveSplit.length === 2) {
       // if :: is used we need to calculate the amount of empty blocks.
       // - Get the right parts (left is already the result)
       // - find how much blocks are missing to reach total of 8.
       // - fill the empty blocks and append right part.
-      let rightPart = consecutiveSplit[1].split(v6.SEP);
+      let rightPart = consecutiveSplit[1].split(sep);
 
       let emptySpaces = v6.BLOCK_COUNT - (result.length + rightPart.length);
 
@@ -60,20 +83,25 @@ export const v6 = {
   },
   isValid(blocks: string[]): boolean {
     return blocks.every(value => v6.RE_BLOCK.test(value)) && blocks.some(value => !!value)
+  },
+  isMaxLen(value: string): boolean {
+    return value.length === 4;
   }
 };
 
-export const mac = Object.assign(Object.create(v6), {
+export const mac: AddressModeLogic = Object.assign(Object.create(v6), {
   BLOCK_MAX_LEN: 2,
   BLOCK_COUNT: 6,
   RE_BLOCK: /^[0-9A-Fa-f]{1,2}$/,
   blocks(): string[] { return ['', '' , '', '', '', '']; },
-  fromBlocks(blocks: string[]): string {
-    return blocks.join(mac.SEP);
+  fromBlocks(blocks: string[], sep: string =  mac.SEP): string {
+    return blocks.join(sep);
   },
-  split(value: string, throwError: boolean = false): string[] {
-    if (!value) return mac.blocks();
-    const result = value.split(mac.SEP);
+  split(value: string, sep: string = mac.SEP, throwError: boolean = false): string[] {
+    if (!value) {
+      return mac.blocks();
+    }
+    const result = value.split(sep);
     if ( throwError && result.length !== mac.BLOCK_COUNT ) {
       throw new Error('Invalid MAC address');
     }
@@ -81,6 +109,9 @@ export const mac = Object.assign(Object.create(v6), {
   },
   isValid(blocks: string[]): boolean {
     return blocks.every(value => mac.RE_BLOCK.test(value)) && blocks.some(value => !!value);
+  },
+  isMaxLen(value: string): boolean {
+    return value.length === 2;
   }
 });
 
@@ -98,6 +129,12 @@ export const inputSelection = {
       : value
     ;
   },
+  caretIsLast(input: HTMLInputElement): boolean {
+    return input
+      ? input.selectionStart === input.selectionEnd && input.selectionStart === input.value.length
+      : false
+    ;
+  },
   /**
    * Returns true if some (or all) of the text is selected
    * @param input
@@ -113,3 +150,8 @@ export const inputSelection = {
     return input.selectionStart === 0 && input.selectionEnd === input.value.length;
   }
 };
+
+// https://github.com/angular/material2/blob/master/src/cdk/coercion/boolean-property.ts
+export function coerceBooleanProperty(value: any): boolean {
+  return value != null && `${value}` !== 'false';
+}
