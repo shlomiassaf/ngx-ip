@@ -2,16 +2,14 @@ import { Component } from '@angular/core';
 import { MatButtonToggleChange, MatDialogRef } from '@angular/material';
 
 import { VALIDATION_TYPE, COPY_MODE_TYPE } from 'ngx-ip';
-
 @Component({
-  selector: 'demo-dialog',
-  templateUrl: './demo-dialog.component.html',
+  selector: 'custom-ip-component-dialog',
+  templateUrl: './custom-ip-component-dialog.component.html',
 })
-export class DemoDialogComponent {
+export class CustomIpComponentDialogComponent {
   inputValidation: VALIDATION_TYPE = 'block';
   disabledBlocks: boolean[] = [];
   highlightInvalidBlocks = true;
-  theme: string = 'default';
   mode: string = 'ipv4';
   disabled: boolean;
   readonly: boolean;
@@ -20,7 +18,7 @@ export class DemoDialogComponent {
 
   ip: string;
 
-  constructor(public dialogRef: MatDialogRef<DemoDialogComponent>) {
+  constructor(public dialogRef: MatDialogRef<CustomIpComponentDialogComponent>) {
 
   }
 

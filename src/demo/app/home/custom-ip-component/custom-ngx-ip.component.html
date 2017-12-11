@@ -1,0 +1,23 @@
+<div fxLayout="row">
+    <ng-template ngFor let-idx [ngForOf]="blocksRef"; let-isLast="last">
+      <div fxFlex="1 0 50px">
+        <mat-form-field style="width: 100%; box-sizing: border-box;">
+          <input matInput
+                 #input="matInput"
+                 type="text"
+                 [readonly]="readonly"
+                 [value]="blocks[idx] || ''"
+                 (change)="onChange($event.target.value, idx, input)"
+                 (blur)="onBlur(idx)"
+                 (focus)="onFocus(idx)"
+                 [disabled]="isBlockDisabled(idx)"
+                 (paste)="onPaste($event, idx)"
+                 (copy)="onCopy($event, idx)"
+                 (keypress)="onKeyPress($event, idx)"
+                 (keyup)="onKeyUp($event, idx)"/>
+          <mat-error>Invalid Block</mat-error>
+        </mat-form-field>
+      </div>
+      <span fxFlex="0 1 10px" fxLayoutAlign="center center" *ngIf="!isLast">{{separator}}</span>
+    </ng-template>
+</div>

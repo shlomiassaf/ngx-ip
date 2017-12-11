@@ -21,7 +21,7 @@
     </ng-template>
   </div>
 
-  <div class="ngx-ip-copy-overlay" *ngIf="showCopySelection">
+  <div class="ngx-ip-copy-overlay" *ngIf="resolveCopyMethod">
     <div class="ngx-ip-table" [@copyAnim]="">
       <div class="ngx-ip-copy-title">Copy?</div>
       <a (click)="onCopyDecision('block')">Block</a>

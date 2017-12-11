@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { FlexLayoutModule } from '@angular/flex-layout';
 import { MaterialModule } from './material';
 
 import { environment } from 'environments/environment';
@@ -12,7 +13,7 @@ import '../styles/styles.scss';
 
 import { AppComponent } from './app.component';
 import { AppState } from './app.service';
-import { HomeComponent, DemoDialogComponent } from './home';
+import { HomeComponent, DemoDialogComponent, CustomIpComponentDialogComponent, CustomNgxIpComponent } from './home';
 import { NoContentComponent } from './no-content';
 
 import { NgxIpModule } from 'ngx-ip';
@@ -31,13 +32,16 @@ const APP_PROVIDERS = [
     AppComponent,
     NoContentComponent,
     HomeComponent,
-    DemoDialogComponent
+    DemoDialogComponent,
+    CustomNgxIpComponent,
+    CustomIpComponentDialogComponent
   ],
   imports: [ // import Angular's modules
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
     RouterModule.forRoot(ROUTES, { useHash: true }),
+    FlexLayoutModule,
     MaterialModule,
     NgxIpModule
   ],
@@ -46,7 +50,8 @@ const APP_PROVIDERS = [
     APP_PROVIDERS
   ],
   entryComponents: [
-    DemoDialogComponent
+    DemoDialogComponent,
+    CustomIpComponentDialogComponent
   ]
 })
 export class AppModule { }
