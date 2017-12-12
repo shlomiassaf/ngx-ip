@@ -1,31 +1,15 @@
-/**
- * @author: @AngularClass
- */
-
 const helpers = require('./helpers');
+const buildUtils = require('./build-utils');
 const webpackMerge = require('webpack-merge'); // used to merge webpack configs
 const commonConfig = require('./webpack.common.js'); // the settings that are common to prod and dev
 
 /**
  * Webpack Plugins
  */
-const DefinePlugin = require('webpack/lib/DefinePlugin');
-const NamedModulesPlugin = require('webpack/lib/NamedModulesPlugin');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
+const NamedModulesPlugin = require('webpack/lib/NamedModulesPlugin');
+const EvalSourceMapDevToolPlugin = require('webpack/lib/EvalSourceMapDevToolPlugin');
 
-/**
- * Webpack Constants
- */
-const ENV = process.env.ENV = process.env.NODE_ENV = 'development';
-const HOST = process.env.HOST || 'localhost';
-const PORT = process.env.PORT || 3000;
-const HMR = helpers.hasProcessFlag('hot');
-const METADATA = webpackMerge(commonConfig({env: ENV}).metadata, {
-  host: HOST,
-  port: PORT,
-  ENV: ENV,
-  HMR: HMR
-});
 
 /**
  * Webpack configuration
@@ -33,16 +17,19 @@ const METADATA = webpackMerge(commonConfig({env: ENV}).metadata, {
  * See: http://webpack.github.io/docs/configuration.html#cli
  */
 module.exports = function (options) {
-  return webpackMerge(commonConfig({env: ENV}), {
+  const ENV = process.env.ENV = process.env.NODE_ENV = 'development';
+  const HOST = process.env.HOST || 'localhost';
+  const PORT = process.env.PORT || 3000;
 
-    /**
-     * Developer tool to enhance debugging
-     *
-     * See: http://webpack.github.io/docs/configuration.html#devtool
-     * See: https://github.com/webpack/docs/wiki/build-performance#sourcemaps
-     */
-    devtool: 'cheap-module-source-map',
+  const METADATA = Object.assign({}, buildUtils.DEFAULT_METADATA, {
+    host: HOST,
+    port: PORT,
+    ENV: ENV,
+    HMR: helpers.hasProcessFlag('hot'),
+    PUBLIC: process.env.PUBLIC_DEV || HOST + ':' + PORT
+  });
 
+  return webpackMerge(commonConfig(Object.assign(options || {}, {env: ENV, metadata: METADATA})), {
     /**
      * Options affecting the output of the compilation.
      *
@@ -71,7 +58,7 @@ module.exports = function (options) {
        *
        * See: http://webpack.github.io/docs/configuration.html#output-sourcemapfilename
        */
-      sourceMapFilename: '[name].map',
+      sourceMapFilename: '[file].map',
 
       /** The filename of non-entry chunks as relative path
        * inside the output.path directory.
@@ -84,26 +71,40 @@ module.exports = function (options) {
       libraryTarget: 'var',
     },
 
-    plugins: [
+    module: {
 
-      /**
-       * Plugin: DefinePlugin
-       * Description: Define free variables.
-       * Useful for having development builds with debug logging or adding global constants.
-       *
-       * Environment helpers
-       *
-       * See: https://webpack.github.io/docs/list-of-plugins.html#defineplugin
-       */
-      // NOTE: when adding more properties, make sure you include them in custom-typings.d.ts
-      new DefinePlugin({
-        'ENV': JSON.stringify(METADATA.ENV),
-        'HMR': METADATA.HMR,
-        'process.env': {
-          'ENV': JSON.stringify(METADATA.ENV),
-          'NODE_ENV': JSON.stringify(METADATA.ENV),
-          'HMR': METADATA.HMR,
-        }
+      rules: [
+
+        /**
+         * Css loader support for *.css files (styles directory only)
+         * Loads external css styles into the DOM, supports HMR
+         *
+         */
+        {
+          test: /\.css$/,
+          use: ['style-loader', 'css-loader'],
+          include: [helpers.root('src', 'demo', 'styles')]
+        },
+
+        /**
+         * Sass loader support for *.scss files (styles directory only)
+         * Loads external sass styles into the DOM, supports HMR
+         *
+         */
+        {
+          test: /\.scss$/,
+          use: ['style-loader', 'css-loader', 'sass-loader'],
+          include: [helpers.root('src', 'demo', 'styles')]
+        },
+
+      ]
+
+    },
+
+    plugins: [
+      new EvalSourceMapDevToolPlugin({
+        moduleFilenameTemplate: '[resource-path]',
+        sourceRoot: 'webpack:///'
       }),
 
       /**
@@ -121,23 +122,10 @@ module.exports = function (options) {
        */
       new LoaderOptionsPlugin({
         debug: true,
-        options: {
-
-          /**
-           * Static analysis linter for TypeScript advanced options configuration
-           * Description: An extensible linter for the TypeScript language.
-           *
-           * See: https://github.com/wbuchwalter/tslint-loader
-           */
-          tslint: {
-            emitErrors: false,
-            failOnHint: false,
-            resourcePath: 'src'
-          },
-
-        }
+        options: { }
       }),
 
+      // TODO: HMR
     ],
 
     /**
@@ -151,15 +139,29 @@ module.exports = function (options) {
     devServer: {
       port: METADATA.port,
       host: METADATA.host,
+      hot: METADATA.HMR,
+      public: METADATA.PUBLIC,
       historyApiFallback: true,
       watchOptions: {
-        aggregateTimeout: 300,
-        poll: 1000
+        // if you're using Docker you may need this
+        // aggregateTimeout: 300,
+        // poll: 1000,
+        ignored: /node_modules/
       },
-      outputPath: helpers.root('dist')
+      /**
+      * Here you can access the Express app object and add your own custom middleware to it.
+      *
+      * See: https://webpack.github.io/docs/webpack-dev-server.html
+      */
+      setup: function(app) {
+        // For example, to define custom handlers for some paths:
+        // app.get('/some/path', function(req, res) {
+        //   res.json({ custom: 'response' });
+        // });
+      }
     },
 
-    /*
+    /**
      * Include polyfills or mocks for various node stuff
      * Description: Node configuration
      *

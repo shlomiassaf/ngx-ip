@@ -1,9 +1,12 @@
 const execSync = require('child_process').execSync;
+/**
+ * Used to merge webpack configs.
+ */
 const webpackMerge = require('webpack-merge'); // used to merge webpack configs
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const helpers = require('../helpers');
 
-const REPO_NAME_RE = /Push {2}URL: https:\/\/github\.com\/.*\/(.*)\.git/;
+const REPO_NAME_RE = /Push {2}URL: ((git@github\.com:)|(https:\/\/github\.com\/)).+\/(.+)\.git/;
 
 function getWebpackConfigModule(options) {
   if (options.githubDev) {
@@ -19,12 +22,12 @@ function getRepoName(remoteName) {
   remoteName = remoteName || 'origin';
 
   var stdout = execSync('git remote show ' + remoteName),
-    match = REPO_NAME_RE.exec(stdout);
+      match = REPO_NAME_RE.exec(stdout);
 
   if (!match) {
     throw new Error('Could not find a repository on remote ' + remoteName);
   } else {
-    return match[1];
+    return match[4];
   }
 }
 
@@ -59,7 +62,9 @@ function safeUrl(url) {
 function replaceHtmlWebpackPlugin(plugins, ghRepoName) {
   for (var i=0; i<plugins.length; i++) {
     if (plugins[i] instanceof HtmlWebpackPlugin) {
-      // remove the old instance of the html plugin
+      /**
+       * Remove the old instance of the html plugin.
+       */
       const htmlPlug = plugins.splice(i, 1)[0];
       const METADATA = webpackMerge(htmlPlug.options.metadata, {
         /**
@@ -70,7 +75,9 @@ function replaceHtmlWebpackPlugin(plugins, ghRepoName) {
         baseUrl: '/' + ghRepoName + '/' + safeUrl(htmlPlug.options.metadata.baseUrl)
       });
 
-      // add the new instance of the html plugin.
+      /**
+       * Add the new instance of the html plugin.
+       */
       plugins.splice(i, 0, new HtmlWebpackPlugin({
         template: htmlPlug.options.template,
         title: htmlPlug.options.title,

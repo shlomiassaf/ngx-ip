@@ -1,0 +1,54 @@
+<mat-dialog-content>
+  <mat-toolbar color="accent">
+    <div fxFlex="1 1 auto">Custom inputs</div>
+    <div>
+      <button mat-icon-button style="color: white" matTooltip="Show Source Code" (click)="showCode = !showCode">
+        <mat-icon aria-label="Show Source Code">code</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar>
+  <div class="address-container">
+    <custom-ngx-ip [(ngModel)]="ip"
+                   [mode]="mode"
+                   inputValidation="block"
+                   copyMode="address"></custom-ngx-ip>
+  </div>
+  Value: <pre>{{ip}}</pre>
+
+  <p>The <b>NgxIp</b> component is using a theme to apply input layout material style input design.</p>
+  <p>If your app is already using the <b>@angular/material</b> and <b>@angular/flex-layout</b> libraries we can create
+    a custom control that uses the native <b>MatInput</b> component from material and fxFlex directives for layout.</p>
+  <p>By extending the base component class (NgxIpBase) custom implementation can be set.</p>
+  <p>In the following example, a custom component is used to implement angular/material Input component
+    with angular/flex-layout components.
+    This implementation has no CSS and is using the full power of the flex-layout and material libraries.</p>
+  <h5>This is not restricted to material / flex-layout, you can customize with any libarary or custom element you want.</h5>
+  <br>
+  <div class="code-section" *ngIf="showCode">
+    <div>
+      <mat-tab-group>
+        <mat-tab label="HTML">
+           <pre><code [innerHtml]="htmlCode"></code></pre>
+        </mat-tab>
+        <mat-tab label="TS">
+           <pre><code [innerHtml]="tsCode"></code></pre>
+        </mat-tab>
+        <mat-tab label="SCSS" *ngIf="scssCode">
+            <pre><code [innerHtml]="scssCode"></code></pre>
+        </mat-tab>
+        <mat-tab label="HTML (usage)">
+          <pre><code [innerHtml]="htmlUsageCode"></code></pre>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>
+  <br>
+  <div>
+    <label for="mode">Mode</label>
+    <mat-radio-group name="mode" id="mode" [(ngModel)]="mode">
+      <mat-radio-button value="ipv4">IPV4</mat-radio-button>
+      <mat-radio-button value="ipv6">IPV6</mat-radio-button>
+      <mat-radio-button value="mac">MAC</mat-radio-button>
+    </mat-radio-group>
+  </div>
+</mat-dialog-content>
