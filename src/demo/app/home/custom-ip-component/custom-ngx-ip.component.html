@@ -7,7 +7,7 @@
                  type="text"
                  [readonly]="readonly"
                  [value]="blocks[idx] || ''"
-                 (change)="onChange($event.target.value, idx, input)"
+                 (change)="onChangeLocal($event.target.value, idx, input)"
                  (blur)="onBlur(idx)"
                  (focus)="onFocus(idx)"
                  [disabled]="isBlockDisabled(idx)"

@@ -1,6 +1,8 @@
 import {
   forwardRef,
   Component,
+  ViewChildren,
+  QueryList,
   ViewEncapsulation,
   ChangeDetectionStrategy,
   ChangeDetectorRef
@@ -35,15 +37,29 @@ export const ADDRESS_CONTROL_VALIDATORS: any = {
   providers: [ ADDRESS_CONTROL_VALUE_ACCESSOR, ADDRESS_CONTROL_VALIDATORS ]
 })
 export class CustomNgxIpComponent extends NgxIpBase {
+
+  @ViewChildren('input') public matInputs: QueryList<MatInput>;
+
   constructor(cdr: ChangeDetectorRef) {
     super(cdr);
   }
-  onChange(value: string, idx: number, input: MatInput): void {
+
+  onChangeLocal(value: string, idx: number, input: MatInput): void {
     super.onChange(value, idx);
     const hasError = this.invalidBlocks[idx];
     if (hasError !== input.errorState) {
       input.errorState = hasError;
       input.stateChanges.next();
     }
+  }
+
+  protected focusNext(idx: number, selectRange: boolean = true): void {
+    // the parent focusNext deals with DOM element (ElementRef) focus() method
+    // we add calling the MatInput instance focus() method.
+    const next = this.matInputs.toArray()[idx + 1];
+    if (next) {
+      next.focus();
+    }
+    super.focusNext(idx, selectRange);
   }
 }

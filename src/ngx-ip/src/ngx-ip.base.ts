@@ -179,7 +179,7 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
 
   @Output() change = new EventEmitter<string>();
 
-  @ViewChildren('input') public inputs: QueryList<ElementRef>;
+  @ViewChildren('input', { read: ElementRef }) public inputs: QueryList<ElementRef>;
 
   private _readonly: boolean = false;
   private _disabled: boolean = false;
@@ -231,7 +231,6 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
   /**
    * Override this method to enable custom copy mode user selection.
    * The default implementation does not enable selection and set 'block' mode.
-   * @returns {Promise<COPY_METHOD>}
    */
   getUserCopyMethod(): Promise<COPY_METHOD> {
     return Promise.resolve('block' as 'block');
@@ -413,7 +412,7 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
     }
   }
 
-  private focusNext(idx: number, selectRange: boolean = true): void {
+  protected focusNext(idx: number, selectRange: boolean = true): void {
     const next = this.getInputElement(idx + 1);
     if (next) {
       next.focus();
