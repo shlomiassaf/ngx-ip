@@ -80,8 +80,14 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
 
     this._mode = mode;
     this.blocks = this.addr.blocks();
-    this.blocksRef = this.blocks.map((v, i) => i);
-    this.invalidBlocks = this.addr.blocks().map( b => false );
+    this.blocksRef = [];
+    this.invalidBlocks = [];
+    this.fullBlocks = 0;
+    for (let i = 0; i < this.addr.BLOCK_COUNT; i++) {
+      this.fullBlocks |= 1 << (i + 1);
+      this.blocksRef[i] = i;
+      this.invalidBlocks[i] = false;
+    }
   }
 
   @Input()
@@ -91,17 +97,7 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
       this._value = v;
       this.blocks = this.toBlocks(v);
       this._onChangeCallback(v);
-
-      if (!v) {
-        for (let i = 0; i < this.blocks.length; i++) {
-          this.invalidBlocks[i] = undefined;
-        }
-      } else {
-        for (let i = 0; i < this.blocks.length; i++) {
-          this.markBlockValidity(this.blocks[i], i);
-        }
-      }
-
+      this.markValidity();
       this._cdr.markForCheck();
       this._cdr.detectChanges();
     }
@@ -177,10 +173,15 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
   get readonly() { return this._readonly; }
   set readonly(value: any) { this._readonly = coerceBooleanProperty(value); }
 
+  @Input()
+  get required() { return this._required; }
+  set required(value: any) { this._required = coerceBooleanProperty(value); }
+
   @Output() change = new EventEmitter<string>();
 
   @ViewChildren('input', { read: ElementRef }) public inputs: QueryList<ElementRef>;
 
+  private _required: boolean = false;
   private _readonly: boolean = false;
   private _disabled: boolean = false;
   private _mode: ADDRESS_MODE_TYPE;
@@ -189,6 +190,8 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
   private _onChangeCallback: (_: any) => void = noop;
   private autoCopy: 'DEFAULT_BLOCK' | 'DEFAULT_ADDRESS' | COPY_METHOD | 'IN_FLIGHT';
   private errorCount: number = 0;
+  private emptyFlag: number = 0;
+  private fullBlocks: number = 0;
 
   constructor(private _cdr: ChangeDetectorRef) {
     this.mode = 'ipv4';
@@ -209,6 +212,9 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
   }
 
   validate(c: AbstractControl): ValidationErrors | null {
+    if (this.required && this.fullBlocks === this.emptyFlag) {
+      return { required: true };
+    }
     if (this.errorCount > 0) {
       return { NgxIpControl: 'Invalid address' };
     } else {
@@ -325,7 +331,7 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
       return;
     }
     this.blocks[idx] = value;
-    this.markBlockValidity(value, idx);
+    this.markValidity();
     this.notifyChange(this.fromBlocks(this.blocks));
   }
 
@@ -400,6 +406,30 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
       this.onChange(value, blockIndex);
     }
     return true;
+  }
+
+  protected reset(): void {
+    this.errorCount = 0;
+    for (let i = 0; i < this.addr.BLOCK_COUNT; i++) {
+      this.invalidBlocks[i] = false;
+    }
+  }
+
+  /**
+   * mark the validity for all blocks
+   */
+  protected markValidity(): void {
+    this.emptyFlag = 0;
+    for (let i = 0; i < this.addr.BLOCK_COUNT; i++) {
+      const value = this.blocks[i];
+      if (!value) {
+        this.emptyFlag |= 1 << (i + 1);
+      }
+      this.markBlockValidity(this.blocks[i], i);
+    }
+    if (this.fullBlocks === this.emptyFlag) {
+      this.reset();
+    }
   }
 
   protected markBlockValidity(value: string, idx: number): void {

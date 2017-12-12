@@ -22,6 +22,7 @@ export class DemoDialogComponent {
   mode: string = 'ipv4';
   disabled: boolean;
   readonly: boolean;
+  required: boolean;
   separator: string;
   copyMode: COPY_MODE_TYPE = 'select';
 

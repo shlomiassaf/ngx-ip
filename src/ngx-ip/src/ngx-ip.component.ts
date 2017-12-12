@@ -80,9 +80,7 @@ export class NgxIpComponent extends NgxIpBase {
     }
 
     this._highlightInvalidBlocks = value;
-    for (let i = 0; i < this.blocks.length; i++) {
-      this.markBlockValidity(this.blocks[i], i);
-    }
+    this.markValidity();
   }
 
   get focused(): boolean {

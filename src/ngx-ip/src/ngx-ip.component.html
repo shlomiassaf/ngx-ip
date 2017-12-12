@@ -6,6 +6,7 @@
            [ngClass]="{ 'ngx-ip-error': highlightInvalidBlocks && invalidBlocks[idx] }">
         <input #input
                type="text"
+               [required]="required"
                [readonly]="readonly"
                [value]="blocks[idx] || ''"
                (change)="onChange($event.target.value, idx)"

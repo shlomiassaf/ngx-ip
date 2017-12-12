@@ -5,6 +5,7 @@
           <input matInput
                  #input="matInput"
                  type="text"
+                 [required]="required"
                  [readonly]="readonly"
                  [value]="blocks[idx] || ''"
                  (change)="onChangeLocal($event.target.value, idx, input)"

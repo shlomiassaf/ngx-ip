@@ -20,17 +20,23 @@
       </mat-tab-group>
     </div>
   </div>
-  <ngx-ip [(ngModel)]="ip"
-          [inputValidation]="inputValidation"
-          [disabledBlocks]="disabledBlocks"
-          [separator]="separator"
-          [disabled]="disabled"
-          [readonly]="readonly"
-          [highlightInvalidBlocks]="highlightInvalidBlocks"
-          [theme]="'ngx-ip-theme-' + theme"
-          [mode]="mode"
-          [copyMode]="copyMode"></ngx-ip>
+  <form #form="ngForm">
+    <ngx-ip name="ip"
+            [(ngModel)]="ip"
+            [inputValidation]="inputValidation"
+            [disabledBlocks]="disabledBlocks"
+            [separator]="separator"
+            [disabled]="disabled"
+            [readonly]="readonly"
+            [required]="required"
+            [highlightInvalidBlocks]="highlightInvalidBlocks"
+            [theme]="'ngx-ip-theme-' + theme"
+            [mode]="mode"
+            [copyMode]="copyMode"></ngx-ip>
+  </form>
   Value: <pre>{{ip}}</pre>
+  Value: <pre>{{form.form.errors}}</pre>
+  Valid: {{form.form.valid}}
 
   <h3>Customization:</h3>
   <div>
@@ -48,6 +54,10 @@
            [(ngModel)]="separator"
            [required]="customSeparator.checked"
            [disabled]="!customSeparator.checked" />
+  </mat-slide-toggle>
+  <br>
+  <mat-slide-toggle [(ngModel)]="required">
+    Required?
   </mat-slide-toggle>
   <br>
   <mat-slide-toggle [(ngModel)]="highlightInvalidBlocks">
