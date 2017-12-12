@@ -1,76 +1,54 @@
-<mat-toolbar color="accent">Custom inputs</mat-toolbar>
-<br>
-<p>
-  By extending the base IP class (NgxIpBase) custom implementation can be set.
-  In the following example, a custom IP component is used to implement angular/material Input component
-  with angular/flex-layout components.
-  This implementation has no CSS and is using the full power of flex-layout and material libraries.
-</p>
-<div>
-  <label for="inputValidation">Input Validation</label>
-  <mat-button-toggle-group name="inputValidation" [(ngModel)]="inputValidation" id="inputValidation">
-    <mat-button-toggle value="none">None</mat-button-toggle>
-    <mat-button-toggle value="char">Char</mat-button-toggle>
-    <mat-button-toggle value="block">Block</mat-button-toggle>
-  </mat-button-toggle-group>
-</div>
-<br>
-<mat-slide-toggle #customSeparator (change)="!customSeparator.checked && separator = null">
-  Custom Separator
-  <input type="text" maxlength="1" minlength="1"
-         [(ngModel)]="separator"
-         [required]="customSeparator.checked"
-         [disabled]="!customSeparator.checked" />
-</mat-slide-toggle>
-<br>
-<mat-slide-toggle [(ngModel)]="highlightInvalidBlocks">
-  Highlight Invalid Blocks
-</mat-slide-toggle>
-<br>
-<mat-slide-toggle [(ngModel)]="readonly">
-  Read only?
-</mat-slide-toggle>
-<br>
-<br>
-<div>
-  <label for="disabledBlocks">Disabled blocks</label>
-  <mat-button-toggle-group multiple id="disabledBlocks">
-    <mat-button-toggle (change)="onDisableBlockChange($event)" value="0">Block 1</mat-button-toggle>
-    <mat-button-toggle (change)="onDisableBlockChange($event)" value="1">Block 2</mat-button-toggle>
-    <mat-button-toggle (change)="onDisableBlockChange($event)" value="2">Block 3</mat-button-toggle>
-    <mat-button-toggle (change)="onDisableBlockChange($event)" value="3">Block 4</mat-button-toggle>
-    <mat-button-toggle *ngIf="mode === 'ipv6'" (change)="onDisableBlockChange($event)" value="4">Block 5</mat-button-toggle>
-    <mat-button-toggle *ngIf="mode === 'ipv6'" (change)="onDisableBlockChange($event)" value="5">Block 6</mat-button-toggle>
-    <mat-button-toggle *ngIf="mode === 'ipv6'" (change)="onDisableBlockChange($event)" value="6">Block 7</mat-button-toggle>
-    <mat-button-toggle *ngIf="mode === 'ipv6'" (change)="onDisableBlockChange($event)" value="7">Block 8</mat-button-toggle>
-    <mat-button-toggle (change)="onDisableBlockChange($event)" value="-1">Component</mat-button-toggle>
-  </mat-button-toggle-group>
-</div>
-<br>
-<div>
-  <label for="mode">Mode</label>
-  <mat-radio-group name="mode" id="mode" [(ngModel)]="mode">
-    <mat-radio-button value="ipv4">IPV4</mat-radio-button>
-    <mat-radio-button value="ipv6">IPV6</mat-radio-button>
-    <mat-radio-button value="mac">MAC</mat-radio-button>
-  </mat-radio-group>
-</div>
-<br>
-<div>
-  <label for="copyMode">Copy Mode</label>
-  <mat-button-toggle-group name="copyMode" [(ngModel)]="copyMode" id="copyMode">
-    <mat-button-toggle value="block">Block</mat-button-toggle>
-    <mat-button-toggle value="address">Address</mat-button-toggle>
-    <mat-button-toggle value="select">User defined</mat-button-toggle>
-  </mat-button-toggle-group>
-</div>
-<br>
-<custom-ngx-ip  [(ngModel)]="ip"
-                [inputValidation]="inputValidation"
-                [disabledBlocks]="disabledBlocks"
-                [separator]="separator"
-                [disabled]="disabled"
-                [readonly]="readonly"
-                [mode]="mode"
-                [copyMode]="copyMode"></custom-ngx-ip>
-<pre>{{ip}}</pre>
+<mat-dialog-content>
+  <mat-toolbar color="accent">
+    <div fxFlex="1 1 auto">Custom inputs</div>
+    <div>
+      <button mat-icon-button style="color: white" matTooltip="Show Source Code" (click)="showCode = !showCode">
+        <mat-icon aria-label="Show Source Code">code</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar>
+  <div class="address-container">
+    <custom-ngx-ip [(ngModel)]="ip"
+                   [mode]="mode"
+                   inputValidation="block"
+                   copyMode="address"></custom-ngx-ip>
+  </div>
+  Value: <pre>{{ip}}</pre>
+
+  <p>The <b>NgxIp</b> component is using a theme to apply input layout material style input design.</p>
+  <p>If your app is already using the <b>@angular/material</b> and <b>@angular/flex-layout</b> libraries we can create
+    a custom control that uses the native <b>MatInput</b> component from material and fxFlex directives for layout.</p>
+  <p>By extending the base component class (NgxIpBase) custom implementation can be set.</p>
+  <p>In the following example, a custom component is used to implement angular/material Input component
+    with angular/flex-layout components.
+    This implementation has no CSS and is using the full power of the flex-layout and material libraries.</p>
+  <h5>This is not restricted to material / flex-layout, you can customize with any libarary or custom element you want.</h5>
+  <br>
+  <div class="code-section" *ngIf="showCode">
+    <div>
+      <mat-tab-group>
+        <mat-tab label="HTML">
+           <pre><code [innerHtml]="htmlCode"></code></pre>
+        </mat-tab>
+        <mat-tab label="TS">
+           <pre><code [innerHtml]="tsCode"></code></pre>
+        </mat-tab>
+        <mat-tab label="SCSS" *ngIf="scssCode">
+            <pre><code [innerHtml]="scssCode"></code></pre>
+        </mat-tab>
+        <mat-tab label="HTML (usage)">
+          <pre><code [innerHtml]="htmlUsageCode"></code></pre>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>
+  <br>
+  <div>
+    <label for="mode">Mode</label>
+    <mat-radio-group name="mode" id="mode" [(ngModel)]="mode">
+      <mat-radio-button value="ipv4">IPV4</mat-radio-button>
+      <mat-radio-button value="ipv6">IPV6</mat-radio-button>
+      <mat-radio-button value="mac">MAC</mat-radio-button>
+    </mat-radio-group>
+  </div>
+</mat-dialog-content>

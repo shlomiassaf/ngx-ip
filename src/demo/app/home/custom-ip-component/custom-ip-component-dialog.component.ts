@@ -1,35 +1,42 @@
-import { Component } from '@angular/core';
-import { MatButtonToggleChange, MatDialogRef } from '@angular/material';
+import { Component, ViewEncapsulation } from '@angular/core';
+import { highlightAuto } from 'highlight.js';
 
-import { VALIDATION_TYPE, COPY_MODE_TYPE } from 'ngx-ip';
+const code = {
+  ts: require('!!raw-loader!./custom-ngx-ip.component.ts'),
+  html: require('!!raw-loader!./custom-ngx-ip.component.html'),
+  scss: require('!!raw-loader!./custom-ngx-ip.component.scss')
+};
+
+const htmlUsageCode = `
+<custom-ngx-ip [(ngModel)]="ip"
+               mode="ipv4"
+               inputValidation="block"
+               copyMode="address"></custom-ngx-ip>`;
+
 @Component({
   selector: 'custom-ip-component-dialog',
   templateUrl: './custom-ip-component-dialog.component.html',
+  styleUrls: [ './custom-ip-component-dialog.component.scss' ],
+  encapsulation: ViewEncapsulation.None
 })
 export class CustomIpComponentDialogComponent {
-  inputValidation: VALIDATION_TYPE = 'block';
-  disabledBlocks: boolean[] = [];
-  highlightInvalidBlocks = true;
   mode: string = 'ipv4';
-  disabled: boolean;
-  readonly: boolean;
-  separator: string;
-  copyMode: COPY_MODE_TYPE = 'select';
-
+  showCode: boolean;
   ip: string;
 
-  constructor(public dialogRef: MatDialogRef<CustomIpComponentDialogComponent>) {
+  htmlUsageCode = highlightAuto(htmlUsageCode, ['html']).value;
 
+  get htmlCode() {
+    return this.code.html || (this.code.html = highlightAuto(code.html, ['html']).value);
   }
 
-  onDisableBlockChange($event: MatButtonToggleChange) {
-    // we must change the whole array for this to kick CD.
-    this.disabledBlocks = this.disabledBlocks.slice();
-    const value = parseInt($event.value, 10);
-    if (value === -1) {
-      this.disabled = $event.source.checked;
-    } else {
-      this.disabledBlocks[value] = $event.source.checked;
-    }
+  get tsCode() {
+    return this.code.ts || (this.code.ts = highlightAuto(code.ts, ['typescript']).value);
   }
+
+  get scssCode() {
+    return this.code.scss || (this.code.scss = highlightAuto(code.scss, ['scss']).value);
+  }
+
+  private code: { ts: string, html: string, scss: string } = <any> {};
 }

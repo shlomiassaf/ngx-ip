@@ -31,7 +31,7 @@ export const ADDRESS_CONTROL_VALIDATORS: any = {
 @Component({
   selector: 'custom-ngx-ip',
   templateUrl: './custom-ngx-ip.component.html',
-  styleUrls: ['./custom-ngx-ip.component.css'],
+  styleUrls: ['./custom-ngx-ip.component.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ ADDRESS_CONTROL_VALUE_ACCESSOR, ADDRESS_CONTROL_VALIDATORS ]

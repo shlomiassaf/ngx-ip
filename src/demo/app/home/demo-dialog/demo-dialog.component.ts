@@ -1,13 +1,20 @@
 import { Component } from '@angular/core';
 import { MatButtonToggleChange, MatDialogRef } from '@angular/material';
+import { highlightAuto } from 'highlight.js';
 
 import { VALIDATION_TYPE, COPY_MODE_TYPE } from 'ngx-ip';
 
+const code = {
+  ts: require('!!raw-loader!./demo-dialog.component.ts'),
+  html: require('!!raw-loader!./demo-dialog.component.html'),
+};
+
 @Component({
   selector: 'demo-dialog',
-  templateUrl: './demo-dialog.component.html',
+  templateUrl: './demo-dialog.component.html'
 })
 export class DemoDialogComponent {
+  showCode: boolean;
   inputValidation: VALIDATION_TYPE = 'block';
   disabledBlocks: boolean[] = [];
   highlightInvalidBlocks = true;
@@ -19,6 +26,16 @@ export class DemoDialogComponent {
   copyMode: COPY_MODE_TYPE = 'select';
 
   ip: string;
+
+  get htmlCode() {
+    return this.code.html || (this.code.html = highlightAuto(code.html, ['html']).value);
+  }
+
+  get tsCode() {
+    return this.code.ts || (this.code.ts = highlightAuto(code.ts, ['typescript']).value);
+  }
+
+  private code: { ts: string, html: string } = <any> {};
 
   constructor(public dialogRef: MatDialogRef<DemoDialogComponent>) {
 

@@ -1,6 +1,6 @@
 {
   "name": "ngx-ip",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "An Angular network address component (IPv4, IPv6 and MAC)",
   "keywords": [
     "angular",
@@ -11,5 +11,13 @@
     "ipv4",
     "ipv6",
     "mac"
-  ]
+  ],
+  "scripts": {},
+  "dependencies": {},
+  "peerDependencies": {
+    "@angular/core": "^2.1.1",
+    "@angular/common": "^2.1.1",
+    "@angular/forms": "^2.1.1"
+  },
+  "devDependencies": {}
 }
