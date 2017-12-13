@@ -181,6 +181,10 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
 
   @ViewChildren('input', { read: ElementRef }) public inputs: QueryList<ElementRef>;
 
+  protected errorCount: number = 0;
+  protected emptyFlag: number = 0;
+  protected fullBlocks: number = 0;
+
   private _required: boolean = false;
   private _readonly: boolean = false;
   private _disabled: boolean = false;
@@ -189,9 +193,6 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
   private _onTouchedCallback: () => void = noop;
   private _onChangeCallback: (_: any) => void = noop;
   private autoCopy: 'DEFAULT_BLOCK' | 'DEFAULT_ADDRESS' | COPY_METHOD | 'IN_FLIGHT';
-  private errorCount: number = 0;
-  private emptyFlag: number = 0;
-  private fullBlocks: number = 0;
 
   constructor(private _cdr: ChangeDetectorRef) {
     this.mode = 'ipv4';
@@ -419,12 +420,7 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
    * mark the validity for all blocks
    */
   protected markValidity(): void {
-    this.emptyFlag = 0;
     for (let i = 0; i < this.addr.BLOCK_COUNT; i++) {
-      const value = this.blocks[i];
-      if (!value) {
-        this.emptyFlag |= 1 << (i + 1);
-      }
       this.markBlockValidity(this.blocks[i], i);
     }
     if (this.fullBlocks === this.emptyFlag) {
@@ -433,6 +429,11 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
   }
 
   protected markBlockValidity(value: string, idx: number): void {
+    if (!value) {
+      this.emptyFlag |= 1 << (idx + 1);
+    } else {
+      this.emptyFlag &= this.emptyFlag - (1 << (idx + 1));
+    }
     const lastHasError = !!this.invalidBlocks[idx];
     this.invalidBlocks[idx] = !this.addr.RE_BLOCK.test(value);
     if (lastHasError && !this.invalidBlocks[idx]) {
@@ -450,6 +451,18 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
       if (selectRange && this.blocks[idx + 1]) {
         next.setSelectionRange(0, this.blocks[idx + 1].toString().length);
       }
+    }
+  }
+
+  protected toBlocks(value: string): string[] {
+    return this.addr.split(value, this.separator);
+  }
+
+  protected fromBlocks(blocks: string[]): string {
+    if (this.fullBlocks === this.emptyFlag) {
+      return '';
+    } else {
+      return this.addr.fromBlocks(blocks, this.separator);
     }
   }
 
@@ -473,11 +486,4 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
     this.change.emit(value);
   }
 
-  private toBlocks(value: string): string[] {
-    return this.addr.split(value, this.separator);
-  }
-
-  private fromBlocks(blocks: string[]): string {
-    return this.addr.fromBlocks(blocks, this.separator);
-  }
 }

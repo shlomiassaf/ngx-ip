@@ -45,11 +45,22 @@ export class CustomNgxIpComponent extends NgxIpBase {
   }
 
   onChangeLocal(value: string, idx: number, input: MatInput): void {
+    const errorCount = this.errorCount;
     super.onChange(value, idx);
-    const hasError = this.invalidBlocks[idx];
-    if (hasError !== input.errorState) {
-      input.errorState = hasError;
-      input.stateChanges.next();
+    if (this.errorCount === 0 && errorCount > 0) {
+      const arr = this.matInputs.toArray();
+      for (let i of arr) {
+        if (i.errorState) {
+          i.errorState = false;
+          i.stateChanges.next();
+        }
+      }
+    } else {
+      const hasError = this.invalidBlocks[idx];
+      if (hasError !== input.errorState) {
+        input.errorState = hasError;
+        input.stateChanges.next();
+      }
     }
   }
 
