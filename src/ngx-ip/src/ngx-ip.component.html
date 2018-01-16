@@ -18,7 +18,7 @@
                (keypress)="onKeyPress($event, idx)"
                (keyup)="onKeyUp($event, idx)"/>
       </div>
-      <span class="ngx-ip-table-cell ngx-ip-sep" *ngIf="!isLast">{{separator}}</span>
+      <span class="ngx-ip-table-cell ngx-ip-sep">{{separatorMap[idx]}}</span>
     </ng-template>
   </div>
 

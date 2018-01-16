@@ -19,13 +19,14 @@ import {
   AddressModeLogic,
   noop,
   v4,
+  v4WithMask,
   v6,
   mac,
   inputSelection,
   coerceBooleanProperty
 } from './utils';
 
-export type ADDRESS_MODE_TYPE = 'ipv4' | 'ipv6' | 'mac';
+export type ADDRESS_MODE_TYPE = 'ipv4' | 'ipv4WithMask' | 'ipv6' | 'mac';
 export type COPY_METHOD = 'block' | 'address';
 export type COPY_MODE_TYPE = 'block' | 'address' | 'select';
 export type VALIDATION_TYPE = 'none' | 'char' | 'block';
@@ -33,18 +34,17 @@ export type VALIDATION_TYPE = 'none' | 'char' | 'block';
 // if supported set it, else try once
 let COPY_FEAT_SUPPORTED: null | boolean | 'TEST' = document.queryCommandSupported('copy') ? true : null;
 
-function isV6(mode: ADDRESS_MODE_TYPE) {
-  return mode === 'ipv6';
-}
-
-function isMac(mode: ADDRESS_MODE_TYPE) {
-  return mode === 'mac';
-}
-
 function cancelEvent($event: Event): void {
   $event.preventDefault();
   $event.stopPropagation();
 }
+
+const MODE_MAP = {
+  'ipv6': v6,
+  'mac': mac,
+  'ipv4WithMask': v4WithMask,
+  'ipv4': v4
+};
 
 export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
   public blocks: string[];
@@ -73,7 +73,11 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
        match current, if match then we know user did not set separator to something else and so
        we update new logic separator */
     const setSeparator = !this.addr || this.separator === this.addr.SEP;
-    this.addr = isV6(mode) ? v6 : isMac(mode) ? mac : v4;
+    this.addr = MODE_MAP[mode];
+    if (!this.addr) {
+      throw new Error(`Unknown mode ${mode}`);
+    }
+
     if (setSeparator) {
       this.separator = this.addr.SEP;
     }
@@ -96,8 +100,8 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
     if (v !== this._value) {
       this._value = v;
       this.blocks = this.toBlocks(v);
-      this._onChangeCallback(v);
       this.markValidity();
+      this._onChangeCallback(v);
       this._cdr.markForCheck();
       this._cdr.detectChanges();
     }
@@ -145,7 +149,15 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
    * Another behaviour that changes is the paste operation, paste will split to octets by the specified
    * separator, e.g.: The IP address 10.0.0.1 when pasted and the separator is "," will not split correctly.
    */
-  @Input() separator: string;
+  @Input() get separator(): string { return this._separator; }
+  set separator(value: string) {
+    this._separator = value;
+    this.separatorMap = this.addr.blocks().map( b => value);
+    this.separatorMap[this.addr.BLOCK_COUNT - 1] = '';
+    if (this.addr === v4WithMask) {
+      this.separatorMap[this.addr.BLOCK_COUNT - 2] = '/';
+    }
+  }
 
   /**
    * The validation level performed on an input.
@@ -181,6 +193,8 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
 
   @ViewChildren('input', { read: ElementRef }) public inputs: QueryList<ElementRef>;
 
+  separatorMap: string[];
+
   protected errorCount: number = 0;
   protected emptyFlag: number = 0;
   protected fullBlocks: number = 0;
@@ -193,6 +207,7 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
   private _onTouchedCallback: () => void = noop;
   private _onChangeCallback: (_: any) => void = noop;
   private autoCopy: 'DEFAULT_BLOCK' | 'DEFAULT_ADDRESS' | COPY_METHOD | 'IN_FLIGHT';
+  private _separator: string;
 
   constructor(private _cdr: ChangeDetectorRef) {
     this.mode = 'ipv4';
@@ -355,7 +370,7 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
 
     if (this.inputValidation === 'char' && !this.addr.RE_CHAR.test(key)) {
       return cancelEvent($event);
-    } else if (this.inputValidation === 'block' && !this.addr.RE_BLOCK.test(value)) {
+    } else if (this.inputValidation === 'block' && !this.addr.RE_BLOCK[idx].test(value)) {
       return cancelEvent($event);
     }
 
@@ -399,7 +414,7 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
   }
 
   protected paste(data: string, blockIndex: number): boolean {
-    let arr = data.split(this.separator);
+    let arr = this.addr.split(data, this.separator);
     if (arr.length === this.addr.BLOCK_COUNT) {
       this.value = this.fromBlocks(arr);
     } else {
@@ -435,7 +450,12 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
       this.emptyFlag &= this.emptyFlag - (1 << (idx + 1));
     }
     const lastHasError = !!this.invalidBlocks[idx];
-    this.invalidBlocks[idx] = !this.addr.RE_BLOCK.test(value);
+    this.invalidBlocks[idx] = !this.addr.RE_BLOCK[idx].test(value);
+    // Special check for IPv4 with mask. RegExp will accept 0,1,2,3 which are invalid.
+    // current address data model can not support this abstraction.
+    if (idx === 4 && this.addr === v4WithMask && !this.invalidBlocks[idx]) {
+      this.invalidBlocks[idx] = parseInt(value, 10) < 4;
+    }
     if (lastHasError && !this.invalidBlocks[idx]) {
       this.errorCount--;
     } else if (!lastHasError && this.invalidBlocks[idx]) {

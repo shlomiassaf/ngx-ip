@@ -56,12 +56,19 @@ export class CustomNgxIpComponent extends NgxIpBase {
         }
       }
     } else {
-      const hasError = this.invalidBlocks[idx];
-      if (hasError !== input.errorState) {
-        input.errorState = hasError;
-        input.stateChanges.next();
-      }
+      this.markErrorState(idx, input);
     }
+  }
+
+  protected paste(data: string, blockIndex: number): boolean {
+    if (super.paste(data, blockIndex)) {
+      const arr = this.matInputs.toArray();
+      for (let i = 0, len = arr.length; i < len; i++) {
+        this.markErrorState(i, arr[i]);
+      }
+      return true;
+    }
+    return false;
   }
 
   protected focusNext(idx: number, selectRange: boolean = true): void {
@@ -72,5 +79,13 @@ export class CustomNgxIpComponent extends NgxIpBase {
       next.focus();
     }
     super.focusNext(idx, selectRange);
+  }
+
+  private markErrorState(idx: number, input: MatInput) {
+    const hasError = this.invalidBlocks[idx];
+    if (hasError !== input.errorState) {
+      input.errorState = hasError;
+      input.stateChanges.next();
+    }
   }
 }

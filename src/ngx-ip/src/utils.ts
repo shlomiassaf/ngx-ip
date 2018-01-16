@@ -4,7 +4,7 @@ export interface AddressModeLogic {
   BLOCK_COUNT: number;
   SEP: string;
   RE_CHAR: RegExp;
-  RE_BLOCK: RegExp;
+  RE_BLOCK: RegExp[];
   blocks: () => string[];
   fromBlocks: (blocks: string[], sep?: string) => string;
   split: (value: string, sep?: string, throwError?: boolean) => string[];
@@ -12,11 +12,13 @@ export interface AddressModeLogic {
   isMaxLen: (value: string) => boolean;
 }
 
+const V4_BLOCK_RE = /^([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])$/;
+
 export const v4: AddressModeLogic = {
   BLOCK_COUNT: 4,
   SEP: '.',
   RE_CHAR: /^[0-9]$/,
-  RE_BLOCK: /^([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])$/,
+  RE_BLOCK: [V4_BLOCK_RE, V4_BLOCK_RE, V4_BLOCK_RE, V4_BLOCK_RE],
   blocks(): string[] { return ['', '' , '', '']; },
   fromBlocks(blocks: string[], sep: string = v4.SEP): string {
     return blocks.join(sep);
@@ -45,11 +47,52 @@ export const v4: AddressModeLogic = {
   }
 };
 
+export const v4WithMask: AddressModeLogic = Object.assign(Object.create(v4), {
+  BLOCK_COUNT: 5,
+  RE_BLOCK: v4.RE_BLOCK.concat([/^([0-2]?[0-9]|30)$/]),
+  blocks(): string[] { return ['', '' , '', '', '']; },
+  fromBlocks(blocks: string[], sep: string = v4.SEP): string {
+    return blocks.slice(0, 4).join(sep) + `/${blocks[4]}`;
+  },
+  split(value: string, sep: string = v4.SEP, throwError: boolean = false): string[] {
+    if (!value) {
+      return v4WithMask.blocks();
+    }
+    const result = value.split(sep);
+    result.push(...result.pop().split('/'));
+    if (throwError && result.length !== v4WithMask.BLOCK_COUNT ) {
+      throw new Error('Invalid IPV4 with Mask');
+    }
+    return result;
+  },
+  isValid(blocks: string[]): boolean {
+    for (let i = 0; i < 4; i++) {
+      const value = parseInt(blocks[i], 10);
+      if ( !(value >= 0 && value <= 255) ) {
+        return false;
+      }
+    }
+    const value = parseInt(blocks[4], 10);
+    return value >= 4 && value <= 30;
+  },
+  isMaxLen(value: string): boolean {
+    if (value.length === 3) {
+      return true;
+    } else if (value.length === 2 && parseInt(value, 10) > 25) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+});
+
+const V6_BLOCK_RE = /^[0-9A-Fa-f]{0,4}$/;
+
 export const v6: AddressModeLogic = {
   BLOCK_COUNT: 8,
   SEP: ':',
   RE_CHAR: /^[0-9A-Fa-f]$/,
-  RE_BLOCK: /^[0-9A-Fa-f]{0,4}$/,
+  RE_BLOCK: v4.RE_BLOCK.map( s => V6_BLOCK_RE).concat(v4.RE_BLOCK.map( s => V6_BLOCK_RE)),
   blocks(): string[] { return v4.blocks().concat(v4.blocks()); },
   fromBlocks(blocks: string[], sep: string  = v6.SEP): string {
     return blocks.map(value => value ? value : '0000').join(sep);
@@ -82,17 +125,19 @@ export const v6: AddressModeLogic = {
     return result;
   },
   isValid(blocks: string[]): boolean {
-    return blocks.every(value => v6.RE_BLOCK.test(value)) && blocks.some(value => !!value)
+    return blocks.every(value => V6_BLOCK_RE.test(value)) && blocks.some(value => !!value)
   },
   isMaxLen(value: string): boolean {
     return value.length === 4;
   }
 };
 
+const MAC_BLOCK_RE = /^[0-9A-Fa-f]{1,2}$/;
+
 export const mac: AddressModeLogic = Object.assign(Object.create(v6), {
   BLOCK_MAX_LEN: 2,
   BLOCK_COUNT: 6,
-  RE_BLOCK: /^[0-9A-Fa-f]{1,2}$/,
+  RE_BLOCK: v4.RE_BLOCK.map( s => MAC_BLOCK_RE).concat([MAC_BLOCK_RE, MAC_BLOCK_RE]),
   blocks(): string[] { return ['', '' , '', '', '', '']; },
   fromBlocks(blocks: string[], sep: string =  mac.SEP): string {
     return blocks.join(sep);
@@ -108,7 +153,7 @@ export const mac: AddressModeLogic = Object.assign(Object.create(v6), {
     return result;
   },
   isValid(blocks: string[]): boolean {
-    return blocks.every(value => mac.RE_BLOCK.test(value)) && blocks.some(value => !!value);
+    return blocks.every(value => MAC_BLOCK_RE.test(value)) && blocks.some(value => !!value);
   },
   isMaxLen(value: string): boolean {
     return value.length === 2;
