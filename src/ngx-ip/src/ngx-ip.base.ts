@@ -360,9 +360,13 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
     // browser support (e.g: safari)
     let key = typeof $event.key === 'string' ? $event.key : String.fromCharCode($event.charCode);
 
-    if (key === this.separator) {
+    if (key === 'Tab') { // FireFox
+      return;
+    } else  if (key === this.separator) {
       cancelEvent($event);
       this.focusNext(idx);
+    } else if (this.isBackspace($event)) { // for FireFox
+      return this.onKeyUp($event, idx);
     }
 
     const isLast = inputSelection.caretIsLast($event.target as any);
@@ -376,26 +380,20 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
 
     this.markBlockValidity(value, idx);
     if (!this.invalidBlocks[idx] && isLast && this.addr.isMaxLen(value)) {
-      this.focusNext(idx, false);
+      // FireFox will not update the value into the input if we move focus.
+      setTimeout(() => this.focusNext(idx, false));
     }
   }
 
   onKeyUp($event: KeyboardEvent, idx: number): void {
-    if (typeof $event.keyCode === 'number') {
-      if ($event.keyCode !== 8) {
-        return;
-      }
-    } else if ($event.key !== 'Backspace') {
-      return;
+    if (this.isBackspace($event)) {
+      const input: HTMLInputElement = $event.target as any;
+      const value = input && input.selectionStart >= 0 && input.selectionEnd > input.selectionStart
+        ? input.value.substr(0, input.selectionStart) + input.value.substr(input.selectionEnd)
+        : input.value.substr(0, input.value.length - 1)
+      ;
+      this.markBlockValidity(value, idx);
     }
-
-    const input: HTMLInputElement = $event.target as any;
-    const value = input && input.selectionStart >= 0 && input.selectionEnd > input.selectionStart
-      ? input.value.substr(0, input.selectionStart) + input.value.substr(input.selectionEnd)
-      : input.value.substr(0, input.value.length - 1)
-    ;
-
-    this.markBlockValidity(value, idx);
   }
 
   onBlur(idx: number): void {
@@ -406,6 +404,10 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
     if (!this.readonly) {
       this.focused = true;
     }
+  }
+
+  protected isBackspace($event: KeyboardEvent): boolean {
+    return $event.keyCode === 8 || $event.key === 'Backspace';
   }
 
   protected getInputElement(blockIndex: number): HTMLInputElement | undefined {
