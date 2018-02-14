@@ -239,7 +239,14 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
   }
 
   writeValue(value: any): void {
-    this.value = value;
+    /* This is a special case, we can't just do this.value = value
+    because the old value is irrelevant as it might have a value differebt from the input's (not commited yet)
+    this call comes from the form so we need to reset everything. */
+    this._value = value;
+    this.blocks = this.toBlocks(value);
+    this.markValidity();
+    this._cdr.markForCheck();
+    this._cdr.detectChanges();
   }
 
   registerOnChange(fn: any): void {
