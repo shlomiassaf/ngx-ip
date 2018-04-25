@@ -73,7 +73,7 @@ export const v4WithMask: AddressModeLogic = Object.assign(Object.create(v4), {
       }
     }
     const value = parseInt(blocks[4], 10);
-    return value >= 4 && value <= 30;
+    return value >= 0 && value <= 30;
   },
   isMaxLen(value: string): boolean {
     if (value.length === 3) {
