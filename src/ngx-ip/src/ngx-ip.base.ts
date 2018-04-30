@@ -463,7 +463,7 @@ export class NgxIpBase implements OnChanges, ControlValueAccessor, Validator {
     // Special check for IPv4 with mask. RegExp will accept 0,1,2,3 which are invalid.
     // current address data model can not support this abstraction.
     if (idx === 4 && this.addr === v4WithMask && !this.invalidBlocks[idx]) {
-      this.invalidBlocks[idx] = parseInt(value, 10) < 4;
+      this.invalidBlocks[idx] = parseInt(value, 10) < 0;
     }
     if (lastHasError && !this.invalidBlocks[idx]) {
       this.errorCount--;
